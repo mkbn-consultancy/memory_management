@@ -24,7 +24,7 @@ public:
   ~S() { puts("S::~S()"); }
 };
 
-int main_global() 
+int main() 
 {
   puts("creating & destroying an int");
   int* p = new int(47);
