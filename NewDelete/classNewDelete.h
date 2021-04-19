@@ -11,7 +11,7 @@ public:
 	void* operator new(size_t);
 	void operator delete(void*);
 private:
-	char c[BLOCK_SIZE]; // To take up space, not used, just to have a size of theh block.
+	char c[BLOCK_SIZE]; // To take up space, not used, just to have a size of the block.
 	static unsigned char _pool[];
 	static unsigned char _alloc_map[];
 };

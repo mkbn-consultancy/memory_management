@@ -7,10 +7,10 @@ public:
 	Widget();
 	~Widget();
 
-	void* operator new(size_t sz) throw();
+	void* operator new(size_t sz);
 	void operator delete(void* p);
 
-	void* operator new[](size_t sz) throw();
+	void* operator new[](size_t sz);
 	void operator delete[](void* p);
 
 private:

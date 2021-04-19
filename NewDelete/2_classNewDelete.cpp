@@ -21,27 +21,30 @@ MemBlock::~MemBlock()
 void* MemBlock::operator new(size_t)
 {
 	//search through the allocation map looking for a zero byte, 
-	//then sets that byte to one to indicate it’s been allocated 
+	//then sets that byte to one to indicate itï¿½s been allocated 
 	//and returns the address of that particular block.
-	//If it can’t find any memory, it issues a message and returns zero 
-	for(int i = 0; i < MAX_POOL_SIZE; i++)
+	//If it canï¿½t find any memory, it issues a message and returns zero 
+	void* result = nullptr;
+	for(int i = 0; i < MAX_POOL_SIZE && !result; i++)
 	{
 		if(!_alloc_map[i]) 
 		{
 			local_out << "using block " << i << " ... ";
 			_alloc_map[i] = 1; // Mark it used
-			return _pool + (i * sizeof(MemBlock));
+			result = _pool + (i * sizeof(MemBlock));
 		}
 	}
-	local_out << "out of memory" << endl;
-	return NULL;
+	if(!result){
+		local_out << "out of memory" << endl;
+	}
+	return result;
 }
 
 //The operator delete assumes the Framis address was created in the pool
 void MemBlock::operator delete(void* ptr) 
 {
 	//calculates which block in the pool this pointer represents, 
-	//and then sets the allocation map’s flag for that block to zero 
+	//and then sets the allocation mapï¿½s flag for that block to zero 
 	//to indicate the block has been released. 
 
 	if(!ptr){ 
@@ -49,7 +52,8 @@ void MemBlock::operator delete(void* ptr)
 	}
 	// Assume it was created in the pool
 	// Calculate which block number it is:
-	unsigned long block = (unsigned long)ptr - (unsigned long)_pool;
+	unsigned long block = (unsigned char*)ptr - _pool;
+	// local_out<<block<<std::endl;
 	block /= sizeof(MemBlock);
 	local_out << "freeing block " << block << endl;
 	// Mark it free:
@@ -59,39 +63,43 @@ void MemBlock::operator delete(void* ptr)
 
 ////////////////////////////////////////////////
 
-//In main( ), enough Framis objects are dynamically allocated to run out of memory; 
+//In main( ), enough MemBlock objects are dynamically allocated to run out of memory; 
 //this checks the out-of-memory behavior. Then one of the objects is freed, 
 //and another one is created to show that the released memory is reused. 
 
-int main_class() 
+int main() 
 {
 	//The pool of memory for the Framis heap is created by allocating 
 	//an array of bytes large enough to hold psize Framis objects. 
+	local_out<<"[main] creating an array f of Memoblock*:\n";
 	MemBlock* f[MemBlock::MAX_POOL_SIZE];
+	local_out<<"[main] allocating "<<MemBlock::MAX_POOL_SIZE<<" blocks to the array from the pool:\n";
 	for(int i = 0; i < MemBlock::MAX_POOL_SIZE; i++){
 		f[i] = new MemBlock;
 	}
 
 	local_out<<"------------------\n";
-
+	local_out<<"[main] trying to allocate another block:\n";
 	new MemBlock; // Out of memory
 
 	local_out<<"------------------\n";
-
+	local_out<<"[main] deleting a block from the pool:\n";
 	delete f[10];
 	f[10] = 0;
 
 	local_out<<"------------------\n";
 
 	// Use released memory:
+	local_out<<"[main] trying to allocate another block:\n";
 	MemBlock* x = new MemBlock;
 
 	local_out<<"------------------\n";
-
+	local_out<<"[main] delete the latest allocated block:\n";
 	delete x;
 
 	local_out<<"------------------\n";
 
+	local_out<<"[main] deleting all blocks in the array f:\n";
 	for(int j = 0; j < MemBlock::MAX_POOL_SIZE; j++)
 	{
 		delete f[j]; // Delete f[10] OK
