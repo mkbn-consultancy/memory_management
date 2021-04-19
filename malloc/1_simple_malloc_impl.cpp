@@ -2,6 +2,8 @@
 
 #include <unistd.h> 
 
+#include <stdio.h>
+
 int has_initialized = 0;
 void *managed_memory_start;
 void *last_valid_address;
@@ -9,7 +11,7 @@ void *last_valid_address;
 void malloc_init()
 { 
     /* grab the last valid address from the OS */  
-    last_valid_address = NULL; //sbrk(0);     
+    last_valid_address = sbrk(0);     
 
     /* we don't have any memory to manage yet, so 
     *just set the beginning to be last_valid_address 
@@ -31,7 +33,7 @@ void free(void *firstbyte) {
     /* Backup from the given pointer to find the
     * mem_control_block
     */
-    mcb = (mem_control_block*)(firstbyte - sizeof(struct mem_control_block));
+    mcb = (mem_control_block*)((char*)firstbyte - sizeof(struct mem_control_block));
     /* Mark the block as being available */
     mcb->is_available = 1;
     /* That's It!  We're done. */
@@ -62,6 +64,8 @@ void *malloc(long numbytes) {
     * to know this, so we'll just add it in for them.
     */
     numbytes = numbytes + sizeof(struct mem_control_block);
+    printf("inside malloc... allocating %lu bytes\n",numbytes);
+    printf("size of header: %lu\n", sizeof(mem_control_block));
 
     /* Set memory_location to 0 until we find a suitable
     * location
@@ -105,7 +109,7 @@ void *malloc(long numbytes) {
         /* If we made it here, it's because the Current memory
         * block not suitable, move to the next one
         */
-        current_location = current_location +
+        current_location = (char*)current_location +
                             current_location_mcb->size;
     }
 
@@ -115,7 +119,7 @@ void *malloc(long numbytes) {
     if(! memory_location)
     {
         /* Move the program break numbytes further */
-        // sbrk(numbytes);
+        sbrk(numbytes);
 
         /* The new memory will be where the last valid 
         * address left off 
@@ -125,7 +129,7 @@ void *malloc(long numbytes) {
         /* We'll move the last valid address forward 
         * numbytes 
         */
-        last_valid_address = last_valid_address + numbytes;
+        last_valid_address = (char*)last_valid_address + numbytes;
 
         /* We need to initialize the mem_control_block */
         current_location_mcb = (mem_control_block*)memory_location;
@@ -137,10 +141,17 @@ void *malloc(long numbytes) {
     * memory_location has the address of the memory, including
     * the mem_control_block
     */
-
+    printf("memory location found: %p, ",memory_location);
     /* Move the pointer past the mem_control_block */
-    memory_location = memory_location + sizeof(struct mem_control_block);
+    memory_location = (char*)memory_location + sizeof(struct mem_control_block);
 
     /* Return the pointer */
     return memory_location;
+ }
+
+ int main(){
+    int* p = (int*)malloc(sizeof(int));
+    printf("address returned: %p\n",p);
+    p = (int*)malloc(sizeof(int));
+    printf("address returned: %p\n",p);
  }
