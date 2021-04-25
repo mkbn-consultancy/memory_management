@@ -40,3 +40,4 @@ int main(){
     // p0 = (char*)&bArr[0], p1 = (char*)&bArr[1];
     // std::cout<<&(bArr[0])<<", "<<&(bArr[1])<<" => "<<p1-p0<<std::endl;
 }
+

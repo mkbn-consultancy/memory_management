@@ -6,7 +6,8 @@
             "command": "C:\\Program Files\\mingw64\\bin\\g++.exe",
             "args": [
                 "-g",
-                "${file}"
+                "${file}",
+                "-std=c++17"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
