@@ -10,17 +10,17 @@ void* operator new(std::size_t size) {
 	auto ptr = malloc(size);
 	if (!ptr)
 		throw std::bad_alloc{};
-	std::cout << "[new:] " << size << ", ptr: " << ptr << '\n';
+	std::cout << "[old new:] " << size << ", ptr: " << ptr << '\n';
 	return ptr;
 }
 
 void operator delete(void* ptr, std::size_t size) {
-	std::cout << "[delete:] " << size << ", ptr: " << ptr << '\n';
+	std::cout << "[old delete,size:] " << size << ", ptr: " << ptr << '\n';
 	free(ptr);
 }
 
 void operator delete(void* ptr) {
-	std::cout << "delete: ptr: " << ptr << '\n';
+	std::cout << "[old delete:] ptr: " << ptr << '\n';
 	free(ptr);
 }
 
@@ -35,7 +35,7 @@ void* operator new(std::size_t size, std::align_val_t align)
     if (!ptr){
         throw std::bad_alloc{};
     }
-    std::cout << "[new:] " << size << ", align: " 
+    std::cout << "[aligned new:] " << size << ", align: " 
               << static_cast<std::size_t>(align) 
               << ", ptr: " << ptr << '\n';
 
@@ -44,7 +44,7 @@ void* operator new(std::size_t size, std::align_val_t align)
 
 void operator delete(void* ptr, std::size_t size, std::align_val_t align) noexcept 
 {
-    std::cout << "[delete:] " << size << ", align: " 
+    std::cout << "[aligned delete,size:] " << size << ", align: " 
               << static_cast<std::size_t>(align) 
               << ", ptr : " << ptr << '\n';
 #if defined(_WIN32) || defined(__CYGWIN__) 
@@ -56,7 +56,7 @@ void operator delete(void* ptr, std::size_t size, std::align_val_t align) noexce
 
 void operator delete(void* ptr, std::align_val_t align) noexcept 
 {
-    std::cout << "[delete: align:] " 
+    std::cout << "[aligned delete] " 
               << static_cast<std::size_t>(align) 
               << ", ptr : " << ptr << '\n';
 #if defined(_WIN32) || defined(__CYGWIN__)
