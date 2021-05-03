@@ -1,6 +1,6 @@
-// void* operator new  ( std::size_t count, std::align_val_t al);
+//source: https://www.bfilipek.com/2019/08/newnew-align.html
 
-// align_val_t myAlignment { 32 };
+//C++17 Code
 
 #include <iostream>
 #include <new>
