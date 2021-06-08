@@ -1,5 +1,6 @@
 #include <fstream>
 #include <new>
+#include <iostream>
 using namespace std;
 
 #include "classNewDelete.h"
@@ -12,10 +13,10 @@ ofstream local_out("MemBlock.out"); //log file
 
 
 MemBlock::MemBlock()
-{ local_out << "MemBlock()\n"; }
+{ local_out << "[ctor] MemBlock()\n"; }
 
 MemBlock::~MemBlock()
-{ local_out << "~MemBlock() ... "; }
+{ local_out << "[dtor] ~MemBlock() ... "; }
 
 // Size is ignored -- assume a Framis object
 void* MemBlock::operator new(size_t)
@@ -29,19 +30,19 @@ void* MemBlock::operator new(size_t)
 	{
 		if(!_alloc_map[i]) 
 		{
-			local_out << "using block " << i << " ... ";
+			local_out << "[new] using block " << i << " ... ";
 			_alloc_map[i] = 1; // Mark it used
 			result = _pool + (i * sizeof(MemBlock));
 		}
 	}
 	if(!result){
-		local_out << "out of memory" << endl;
+		local_out << "[new] out of memory" << endl;
 	}
 	return result;
 }
 
 //The operator delete assumes the Framis address was created in the pool
-void MemBlock::operator delete(void* ptr) 
+void MemBlock::operator delete(void* ptr) noexcept
 {
 	//calculates which block in the pool this pointer represents, 
 	//and then sets the allocation map�s flag for that block to zero 
@@ -55,7 +56,7 @@ void MemBlock::operator delete(void* ptr)
 	unsigned long block = (unsigned char*)ptr - _pool;
 	// local_out<<block<<std::endl;
 	block /= sizeof(MemBlock);
-	local_out << "freeing block " << block << endl;
+	local_out << "[delete] freeing block " << block << endl;
 	// Mark it free:
 	_alloc_map[block] = 0;
 }
@@ -69,6 +70,7 @@ void MemBlock::operator delete(void* ptr)
 
 int main() 
 {
+	std::cout<<"[main] started... output written to file...";
 	//The pool of memory for the Framis heap is created by allocating 
 	//an array of bytes large enough to hold psize Framis objects. 
 	local_out<<"[main] creating an array f of Memoblock*:\n";
@@ -107,6 +109,7 @@ int main()
 
 	local_out<<"------------------\n";
 
+	std::cout<<"done!\n";
 	return 0;
 }
 

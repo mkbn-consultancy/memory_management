@@ -120,7 +120,9 @@ void *malloc(long numbytes) {
     if(! memory_location)
     {
         /* Move the program break numbytes further */
-        sbrk(numbytes);
+        if(sbrk(numbytes)==(void*)-1){
+            return 0;
+        }
 
         /* The new memory will be where the last valid 
         * address left off 
